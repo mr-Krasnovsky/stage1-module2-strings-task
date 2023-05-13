@@ -1,5 +1,9 @@
 package com.epam.mjc;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
 public class MethodParser {
 
     /**
@@ -20,6 +24,50 @@ public class MethodParser {
      * @return {@link MethodSignature} object filled with parsed values from source string
      */
     public MethodSignature parseFunction(String signatureString) {
-        throw new UnsupportedOperationException("You should implement this method.");
+        List<String> parts = new ArrayList<>();
+        StringTokenizer tokenizer = new StringTokenizer(signatureString, "()");
+        while (tokenizer.hasMoreElements()) {
+            parts.add(tokenizer.nextToken());
+        }
+        String[] name = parts.get(0).split(" ");
+
+        MethodSignature result;
+
+        if (parts.size() > 1) {
+            String[] arguments = parts.get(1).split(", ");
+            List<MethodSignature.Argument> args = new ArrayList<>();
+
+            for (int i = 0; i < arguments.length; i++) {
+                String[] arg = arguments[i].split(" ");
+                MethodSignature.Argument argument = new MethodSignature.Argument(arg[0], arg[1]);
+                args.add(argument);
+            }
+
+            result = new MethodSignature(name[name.length - 1], args);
+        } else {
+            result = new MethodSignature(name[name.length - 1]);
+        }
+
+        switch (name[0]) {
+            case "private":
+                result.setAccessModifier("private");
+                break;
+            case "protected":
+                result.setAccessModifier("protected");
+                break;
+            case "public":
+                result.setAccessModifier("public");
+                break;
+            default:
+                result.setAccessModifier(null);
+                break;
+        }
+
+        if (name.length == 3) {
+            result.setReturnType(name[1]);
+        } else if (name.length <= 2) {
+            result.setReturnType(name[0]);
+        }
+        return result;
     }
 }
